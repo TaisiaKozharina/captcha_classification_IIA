@@ -22,16 +22,36 @@ for i = 1:20%size(labels,1)
     digits = segment(I_processed);
 
     if sum(cellfun(@(d) nnz(d) > 0, digits)) ~= nonzeros(labels(i,2:5))
-        fprint("Skipping sample $d because number of labels dont match", i);
+        fprintf("Skipping sample $d because number of labels dont match", i);
         continue;
     end
 
-    for k = 1:4
-        lbl = labels(i, k+1);
+    % TODO: If first label will be zero - do something, because that zero
+    % will be LAST (not first) in segmentation (digits array)
+    first_zero = labels(i, 1)==0;
+    fprintf("Initialize first_zero as: %d\n",first_zero);
 
-        if lbl == 0
-            continue;   % skip missing digits
+
+    for k = 1:4
+
+        if first_zero && k==4 
+            continue;
         end
+        
+        if first_zero
+            %fprintf("First zero, so taking k+2: %d\n",k+2);
+            lbl = labels(i, k+2);
+        else
+            %fprintf("First not zero, so taking k+1: %d\n",k+1);
+            lbl = labels(i, k+1);
+        end
+
+        %skip if digits{k} is zero - which will be the last digit
+        %if there are only 3 after segmentation
+        if nnz(digits{k}) == 0
+            continue;
+        end
+
 
         digitImg = digits{k};
 
@@ -43,6 +63,8 @@ for i = 1:20%size(labels,1)
 
         features{end+1,1} = feat;
         digitLabels(end+1,1) = lbl;
+
+        
     end
 end
 
