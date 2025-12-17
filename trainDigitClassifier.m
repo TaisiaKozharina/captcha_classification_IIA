@@ -22,13 +22,22 @@ for i = 1:20%size(labels,1)
     digits = segment(I_processed);
 
     if sum(cellfun(@(d) nnz(d) > 0, digits)) ~= nonzeros(labels(i,2:5))
-        fprintf("Skipping sample $d because number of labels dont match", i);
+        fprintf("Skipping sample %d because number of labels dont match\n", i);
         continue;
+    end
+
+    figure;
+    tiledlayout(1,4, 'Padding','compact', 'TileSpacing','compact');
+    
+    for p = 1:4
+        nexttile;
+        imshow(digits{p});
+        title(sprintf('Digit %d / %d', p, size(digits,2)));
     end
 
     % TODO: If first label will be zero - do something, because that zero
     % will be LAST (not first) in segmentation (digits array)
-    first_zero = labels(i, 1)==0;
+    first_zero = labels(i, 2)==0;
     fprintf("Initialize first_zero as: %d\n",first_zero);
 
 
