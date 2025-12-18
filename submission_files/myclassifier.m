@@ -80,7 +80,7 @@ t = templateSVM( ...
 svm_model = fitcecoc(Xtrain, Ytrain, 'Learners', t);
 
 %% ---- Evaluate ----
-evaluateClassifier(svm_model, Xtest, Ytest);
+evaluate_classifier(svm_model, Xtest, Ytest);
 
 % Save model
 save('svm_model.mat', 'svm_model', 'hogParams', 'bg');
