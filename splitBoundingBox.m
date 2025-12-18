@@ -17,8 +17,6 @@ function crops = splitBoundingBox(binImg, widthThreshold)
     yMax = max(rows);
 
     w0 = xMax - xMin + 1;
-    h0 = yMax - yMin + 1;
-
 
     % Decide number of parts
     if w0 > widthThreshold
@@ -49,7 +47,14 @@ function crops = splitBoundingBox(binImg, widthThreshold)
         y1 = yMin;
         y2 = yMax;
 
-        crops{i} = binImg(y1:y2, x1:x2);
+        crop_temp = binImg(y1:y2, x1:x2);
+        crops{i} = imresize(crop_temp, [40 40], 'nearest');
+
+    end
+
+    if nParts == 3
+        crops{4} = zeros(40,40);
+    end
 
 end
 
