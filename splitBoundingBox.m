@@ -1,4 +1,4 @@
-function boxes = splitBoundingBox(binImg, widthThreshold)
+function crops = splitBoundingBox(binImg, widthThreshold)
 
     binImg = logical(binImg);
 
@@ -6,7 +6,7 @@ function boxes = splitBoundingBox(binImg, widthThreshold)
     [rows, cols] = find(binImg);
 
     if isempty(rows)
-        boxes = [];
+        crops = {};
         return;
     end
 
@@ -31,15 +31,25 @@ function boxes = splitBoundingBox(binImg, widthThreshold)
 
     partW = w0 / nParts;
 
-    % Create bounding boxes
-    boxes = zeros(nParts, 4);
+    [H, W] = size(binImg);
+
+    % Create cropped images
+    crops = cell(1, nParts);
+
     for i = 1:nParts
-        boxes(i,:) = [ ...
-            xMin + (i-1)*partW, ...
-            yMin, ...
-            partW, ...
-            h0 ];
-    end
-    
+        % Horizontal limits
+        x1 = round(xMin + (i-1)*partW);
+        x2 = round(xMin + i*partW - 1);
+
+        % Clamp to image bounds
+        x1 = max(x1, 1);
+        x2 = min(x2, W);
+
+        % Vertical limits (global bbox)
+        y1 = yMin;
+        y2 = yMax;
+
+        crops{i} = binImg(y1:y2, x1:x2);
+
 end
 
