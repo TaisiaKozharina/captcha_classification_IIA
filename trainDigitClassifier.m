@@ -1,15 +1,16 @@
 function svm_model = trainDigitClassifier(imageDir, labelFile, bg)
 % Trains an ECOC SVM digit classifier (3,4,5)
 
+N = 100; %size(labels,1)
 % Read labels
 labels = readmatrix(labelFile);
 
 features = {};
-digitLabels = [];
+digitLabels = []; % zeros(N,4);
 
 hogParams = {'CellSize',[8 8]};
 
-for i = 1:20%size(labels,1)
+for i = 1:N
 
     fprintf("training on sample %d",i);
 
@@ -22,38 +23,35 @@ for i = 1:20%size(labels,1)
     digits = segment(I_processed);
 
     if sum(cellfun(@(d) nnz(d) > 0, digits)) ~= nonzeros(labels(i,2:5))
-        fprintf("Skipping sample %d because number of labels dont match\n", i);
+        fprintf("\nSkipping sample %d because number of labels dont match\n", i);
         continue;
     end
 
-    figure;
-    tiledlayout(1,4, 'Padding','compact', 'TileSpacing','compact');
-    
-    for p = 1:4
-        nexttile;
-        imshow(digits{p});
-        title(sprintf('Digit %d / %d', p, size(digits,2)));
-    end
 
     % TODO: If first label will be zero - do something, because that zero
     % will be LAST (not first) in segmentation (digits array)
     first_zero = labels(i, 2)==0;
-    fprintf("Initialize first_zero as: %d\n",first_zero);
+    fprintf("\nInitialize first_zero as: %d\n",first_zero);
+
+    figure;
+    tiledlayout(1,4, 'Padding','compact', 'TileSpacing','compact');
+
+    if first_zero
+        % Adjust labels if the first label is zero
+        labels_adjusted = [labels(i, 3:5) 0];
+    else
+        labels_adjusted = labels(i, 2:5);
+    end
+    
+    for p = 1:4
+        nexttile;
+        imshow(digits{p});
+        title(sprintf('Digit %d (True label: %d)', p, labels_adjusted(p)));
+    end
+
 
 
     for k = 1:4
-
-        if first_zero && k==4 
-            continue;
-        end
-        
-        if first_zero
-            %fprintf("First zero, so taking k+2: %d\n",k+2);
-            lbl = labels(i, k+2);
-        else
-            %fprintf("First not zero, so taking k+1: %d\n",k+1);
-            lbl = labels(i, k+1);
-        end
 
         %skip if digits{k} is zero - which will be the last digit
         %if there are only 3 after segmentation
@@ -71,14 +69,19 @@ for i = 1:20%size(labels,1)
         feat = extractHOGFeatures(digitImg, hogParams{:});
 
         features{end+1,1} = feat;
-        digitLabels(end+1,1) = lbl;
+        digitLabels(end+1,1) = labels_adjusted(k);
 
-        
     end
+
+    % fprintf("\nLabels for sample %d: ", i);
+    % disp(digitLabels(end-4,end));
+
 end
 
 X = cell2mat(features);
 Y = digitLabels;
+disp(Y);
+
 
 % ---- Train SVM (ECOC) ----
 t = templateSVM( ...
@@ -88,5 +91,5 @@ t = templateSVM( ...
 
 svm_model = fitcecoc(X, Y, 'Learners', t);
 
-disp('Training complete.');
+disp('\nTraining complete.');
 end
