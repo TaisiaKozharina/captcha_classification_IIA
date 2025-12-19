@@ -2,7 +2,9 @@
 img = 'Data/Train/captcha_0153.png';
 % figure;
 % imshow(img);
-bg = imread('Data/Train/mean_image.png');
+% bg = imread('Data/Train/mean_image.png');
+bg = meanImage('Data/Train');
+% imshow(meanImage);
 % tic;
 % mdl = trainDigitClassifier('Data/Train', 'Data/Train/labels.txt', bg);
 md1 = myclassifier('Data/Train', 'Data/Train/labels.txt', bg);
