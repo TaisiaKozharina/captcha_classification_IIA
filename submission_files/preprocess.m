@@ -41,7 +41,7 @@ function [out] = preprocess(img, bg)
     small_objects = bwareafilt(I5,[0 1550]);
     I6 = I5 - small_objects;
     % figure;
-    % imshow(I6); title("Dilated");
+    % imshow(I6); title("Filtered small objects");
 
     %Rotate
 
