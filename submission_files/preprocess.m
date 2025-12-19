@@ -4,8 +4,8 @@ function [out] = preprocess(img, bg)
     I0 = rgb2gray(img);   
     bgGray = im2double(im2gray(bg));
     I0 = im2double(I0) - bgGray;
-    figure;
-    imshow(I0); title("Grayscale minus background");
+    % figure;
+    % imshow(I0); title("Grayscale minus background");
     
 
     % Enhance dark regions (the digits)
@@ -13,35 +13,35 @@ function [out] = preprocess(img, bg)
     bot = imbothat(I0, se); % enhances dark valleys
     I1 = I0  - bot;
     I1 = mat2gray(I1);
-    figure;
-    imshow(I1); title("Dark regions enhanced");
+    % figure;
+    % imshow(I1); title("Dark regions enhanced");
 
     % Smmoth before binarizing
     I2 = medfilt2(I1, [5 5]); % Median filter the enhanced image before binarization (tune window size)
     I2 = imgaussfilt(I2,1); % smooth
-    figure;
-    imshow(I2); title("Median filtering + Gauss filtering");
+    % figure;
+    % imshow(I2); title("Median filtering + Gauss filtering");
 
     %Binarize
     I3 = ~imbinarize(I2, 0.55);
-    figure;
-    imshow(I3); title("Binarized");
+    % figure;
+    % imshow(I3); title("Binarized");
 
     %Erode
     I4 = imerode(I3,strel("disk",3));
-    figure;
-    imshow(I4); title("Eroded");
+    % figure;
+    % imshow(I4); title("Eroded");
 
     %Dilate
     I5 = imdilate(I4,strel("disk",3));
-    figure;
-    imshow(I5); title("Dilated");
+    % figure;
+    % imshow(I5); title("Dilated");
 
     %Filter small objects
     small_objects = bwareafilt(I5,[0 1550]);
     I6 = I5 - small_objects;
-    figure;
-    imshow(I6); title("Dilated");
+    % figure;
+    % imshow(I6); title("Dilated");
 
     %Rotate
 
